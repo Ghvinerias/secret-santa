@@ -2,15 +2,13 @@ version: '3.8'
 
 services:
   backend:
-    build:
-      context: ./backend  # Build context, the folder where your Dockerfile is located
-      dockerfile: Dockerfile  # Name of the Dockerfile inside the backend folder
-    container_name: secret-santa-app
+    image: golang:1.23 
+    container_name: api
     working_dir: /app
     volumes:
       - ./backend:/app  # Mount the backend folder into the container
     ports:
-      - "8080:8089"  # Map the container port to the host port
+      - "8080:8080"  # Map the container port to the host port
     depends_on:
       - db
     environment:
@@ -19,6 +17,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=secret
       - DB_NAME=secret_santa_db
+    command: [ go run main.go ]
   db:
     image: postgres:15-alpine  # Use PostgreSQL as the database
     container_name: secret-santa-db
@@ -28,8 +27,17 @@ services:
       POSTGRES_DB: secret_santa_db
     ports:
       - "5432:5432"  # Expose the database port
-#uncomment theese 4 lines to make db data persistant
-    # volumes:
-      # - db_data:/var/lib/postgresql/data  # Persist database data
-# volumes:
-  # db_data:
+  front:
+    image: node:hydrogen-alpine3.20
+    working_dir: /app
+    command: [ npm run dev]
+    container_name: front
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - BACKEND_URL=api:5432
+

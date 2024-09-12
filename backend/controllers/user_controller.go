@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"secret-santa/backend/models"
-
 	"gorm.io/gorm"
 )
 
